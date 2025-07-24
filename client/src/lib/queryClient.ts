@@ -7,6 +7,8 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
 export async function apiRequest(
   url: string,
   options: RequestInit = {}
@@ -16,8 +18,8 @@ export async function apiRequest(
   // Get JWT token from localStorage
   const token = localStorage.getItem('access_token');
   
-  // Determine the full URL - use Express backend on same port
-  const fullUrl = url.startsWith('http') ? url : url;
+  // Determine the full URL - prefix relative URLs with configured API base
+  const fullUrl = url.startsWith('http') ? url : API_BASE_URL + url;
   
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string> || {})
@@ -64,7 +66,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const url = queryKey.join("/") as string;
-    const fullUrl = url.startsWith('http') ? url : url;
+    const fullUrl = url.startsWith('http') ? url : API_BASE_URL + url;
     
     // Get JWT token from localStorage
     const token = localStorage.getItem('access_token');
